@@ -1,0 +1,9 @@
+﻿namespace TabuleiroNM
+{
+    class TabuleiroException : Exception
+    {
+        public TabuleiroException(string? message) : base(message)
+        {
+        }
+    }
+}
