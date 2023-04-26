@@ -27,7 +27,7 @@ namespace Xadrez_console
                         bool[,] posicoesPossiveis = partida.Tab.Peca(origem).MovimentosPossiveis();
 
                         Console.Clear();
-                        Tela.ImprimirTabuleito(partida.Tab, posicoesPossiveis);
+                        Tela.ImprimirTabuleiro(partida.Tab, posicoesPossiveis);
 
                         Console.WriteLine();
                         Console.Write("Destino: ");
@@ -42,6 +42,8 @@ namespace Xadrez_console
                         Console.ReadLine();
                     }
                 }
+                Console.Clear();
+                Tela.ImprimirPartida(partida);
             }
             catch (TabuleiroException e)
             {

@@ -7,15 +7,23 @@ namespace Xadrez_console
     {
         public static void ImprimirPartida(PartidaDeXadrez partida)
         {
-            ImprimirTabuleito(partida.Tab);
+            ImprimirTabuleiro(partida.Tab);
             Console.WriteLine();
             ImprimirPecasCapturadas(partida);
             Console.WriteLine();
             Console.WriteLine("Turno: " + partida.Turno);
-            Console.WriteLine("Aguardando jogada: " + partida.JogadorAtual);
 
-            if (partida.Xeque)
-                Console.WriteLine("XEQUE!");
+            if (!partida.Terminada)
+            {
+                Console.WriteLine("Aguardando jogada: " + partida.JogadorAtual);
+                if (partida.Xeque)
+                    Console.WriteLine("XEQUE!");
+            }
+            else
+            {
+                Console.WriteLine("XEQUE-MATE!");
+                Console.WriteLine("Vencedor: " + partida.JogadorAtual);
+            }
         }
 
         public static void ImprimirPecasCapturadas(PartidaDeXadrez partida)
@@ -42,7 +50,7 @@ namespace Xadrez_console
             Console.Write("]");
         }
 
-        public static void ImprimirTabuleito(Tabuleiro tab)
+        public static void ImprimirTabuleiro(Tabuleiro tab)
         {
             for (int i = 0; i < tab.Linhas; i++)
             {
@@ -56,11 +64,11 @@ namespace Xadrez_console
             Console.WriteLine("  a b c d e f g h");
         }
 
-        public static void ImprimirTabuleito(Tabuleiro tab, bool[,] posicoesPossiveis)
+        public static void ImprimirTabuleiro(Tabuleiro tab, bool[,] posicoesPossiveis)
         {
             ConsoleColor fundoOriginal = Console.BackgroundColor;
             ConsoleColor fundoAlterado = ConsoleColor.DarkGray;
-            
+
             for (int i = 0; i < tab.Linhas; i++)
             {
                 Console.Write(8 - i + " ");
@@ -73,6 +81,7 @@ namespace Xadrez_console
                     ImprimirPeca(tab.Peca(i, j));
                 }
                 Console.WriteLine();
+                Console.BackgroundColor = fundoOriginal;
             }
             Console.WriteLine("  a b c d e f g h");
             Console.BackgroundColor = fundoOriginal;

@@ -10,7 +10,7 @@ namespace Xadrez
         public Cor JogadorAtual { get; private set; }
         public bool Terminada { get; private set; }
         public bool Xeque { get; private set; }
-        
+
         private HashSet<Peca> pecas;
         private HashSet<Peca> capturadas;
 
@@ -90,13 +90,41 @@ namespace Xadrez
             if (R == null)
                 throw new TabuleiroException("Não tem rei da cor " + cor + " no tabuleiro!");
 
-            foreach(Peca x in PecasEmJogo(Adversaria(cor)))
+            foreach (Peca x in PecasEmJogo(Adversaria(cor)))
             {
                 bool[,] mat = x.MovimentosPossiveis();
                 if (mat[R.Posicao.Linha, R.Posicao.Coluna])
                     return true;
             }
             return false;
+        }
+
+        public bool TesteXequeMate(Cor cor)
+        {
+            if (!EstaEmXeque(cor))
+                return false;
+
+            foreach (Peca x in PecasEmJogo(cor))
+            {
+                bool[,] mat = x.MovimentosPossiveis();
+                for (int i = 0; i < Tab.Linhas; i++)
+                {
+                    for (int j = 0; j < Tab.Colunas; j++)
+                    {
+                        if (mat[i, j])
+                        {
+                            Posicao origem = x.Posicao;
+                            Posicao destino = new Posicao(i, j);
+                            Peca pecaCapturada = ExecutaMovimento(origem, destino);
+                            bool testeXeque = EstaEmXeque(cor);
+                            DesfazMovimento(origem, destino, pecaCapturada);
+                            if (!testeXeque)
+                                return false;
+                        }
+                    }
+                }
+            }
+            return true;
         }
 
         public void ColocarNovaPeca(char coluna, int linha, Peca peca)
@@ -145,8 +173,13 @@ namespace Xadrez
             else
                 Xeque = false;
 
-            Turno++;
-            MudaJogador();
+            if (TesteXequeMate(Adversaria(JogadorAtual)))
+                Terminada = true;
+            else
+            {
+                Turno++;
+                MudaJogador();
+            }
         }
 
         public void ValidarPosicaoDeOrigem(Posicao pos)
