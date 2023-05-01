@@ -2,98 +2,92 @@
 
 namespace Xadrez
 {
-    class Peao : Peca
+    class Pawn : Piece
     {
-        private PartidaDeXadrez partida;
+        private readonly ChessMatch _match;
 
-        public Peao(Cor cor, Tabuleiro tab, PartidaDeXadrez partida) : base(cor, tab)
+        public Pawn(PieceColor color, MatchBoard board, ChessMatch match) : base(color, board) => _match = match;
+
+        public override string ToString() => "P";
+
+        private bool CheckForEnemy(BoardPosition position)
         {
-            this.partida = partida;
+            var piece = Board.GetPiece(position);
+            return piece is not null && piece.Color != Color;
         }
 
-        public override string ToString()
-        {
-            return "P";
-        }
+        private bool IsFree(BoardPosition position) => Board.GetPiece(position) is null;
 
-        private bool ExisteInimigo(Posicao pos)
+        public override bool[,] GetMoves()
         {
-            Peca p = Tab.Peca(pos);
-            return p != null && p.Cor != Cor;
-        }
+            var moves = new bool[Board.Lines, Board.Columns];
+            var position = new BoardPosition(0, 0);
 
-        private bool Livre(Posicao pos)
-        {
-            return Tab.Peca(pos) == null;
-        }
+            if (Position is null)
+                throw new NullReferenceException();
 
-        public override bool[,] MovimentosPossiveis()
-        {
-            bool[,] mat = new bool[Tab.Linhas, Tab.Colunas];
-            Posicao pos = new Posicao(0, 0);
-
-            if (Cor == Cor.Branca)
+            if (Color == PieceColor.White)
             {
-                pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna);
-                if (Tab.PosicaoValida(pos) && Livre(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line - 1, Position.Column);
+                if (Board.IsOnBoard(position) && IsFree(position))
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha - 2, Posicao.Coluna);
-                if (Tab.PosicaoValida(pos) && Livre(pos) && QteMovimentos == 0)
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line - 2, Position.Column);
+                if (Board.IsOnBoard(position) && IsFree(position) && NumbersOfMoves == 0)
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna - 1);
-                if (Tab.PosicaoValida(pos) && ExisteInimigo(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line - 1, Position.Column - 1);
+                if (Board.IsOnBoard(position) && CheckForEnemy(position))
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna + 1);
-                if (Tab.PosicaoValida(pos) && ExisteInimigo(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line - 1, Position.Column + 1);
+                if (Board.IsOnBoard(position) && CheckForEnemy(position))
+                    moves[position.Line, position.Column] = true;
 
                 // #jogadaespecial en passant
-                if (Posicao.Linha == 3)
+                if (Position.Line == 3)
                 {
-                    Posicao esquerda = new Posicao(Posicao.Linha, Posicao.Coluna - 1);
-                    if (Tab.PosicaoValida(esquerda) && ExisteInimigo(esquerda) && Tab.Peca(esquerda) == partida.vulneravelEnPassant)
-                        mat[esquerda.Linha - 1, esquerda.Coluna] = true;
+                    var left = new BoardPosition(Position.Line, Position.Column - 1);
+                    if (Board.IsOnBoard(left) && CheckForEnemy(left) && Board.GetPiece(left) == _match.EnPassantVulnerablePiece)
+                        moves[left.Line - 1, left.Column] = true;
 
-                    Posicao direita = new Posicao(Posicao.Linha, Posicao.Coluna + 1);
-                    if (Tab.PosicaoValida(direita) && ExisteInimigo(direita) && Tab.Peca(direita) == partida.vulneravelEnPassant)
-                        mat[direita.Linha - 1, direita.Coluna] = true;
+                    var right = new BoardPosition(Position.Line, Position.Column + 1);
+                    if (Board.IsOnBoard(right) && CheckForEnemy(right) && Board.GetPiece(right) == _match.EnPassantVulnerablePiece)
+                        moves[right.Line - 1, right.Column] = true;
                 }
             }
             else
             {
-                pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna);
-                if (Tab.PosicaoValida(pos) && Livre(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line + 1, Position.Column);
+                if (Board.IsOnBoard(position) && IsFree(position))
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha + 2, Posicao.Coluna);
-                if (Tab.PosicaoValida(pos) && Livre(pos) && QteMovimentos == 0)
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line + 2, Position.Column);
+                if (Board.IsOnBoard(position) && IsFree(position) && NumbersOfMoves == 0)
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna - 1);
-                if (Tab.PosicaoValida(pos) && ExisteInimigo(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line + 1, Position.Column - 1);
+                if (Board.IsOnBoard(position) && CheckForEnemy(position))
+                    moves[position.Line, position.Column] = true;
 
-                pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna + 1);
-                if (Tab.PosicaoValida(pos) && ExisteInimigo(pos))
-                    mat[pos.Linha, pos.Coluna] = true;
+                position.SetValues(Position.Line + 1, Position.Column + 1);
+                if (Board.IsOnBoard(position) && CheckForEnemy(position))
+                    moves[position.Line, position.Column] = true;
 
                 // #jogadaespecial en passant
-                if (Posicao.Linha == 4)
+                if (Position.Line == 4)
                 {
-                    Posicao esquerda = new Posicao(Posicao.Linha, Posicao.Coluna - 1);
-                    if (Tab.PosicaoValida(esquerda) && ExisteInimigo(esquerda) && Tab.Peca(esquerda) == partida.vulneravelEnPassant)
-                        mat[esquerda.Linha + 1, esquerda.Coluna] = true;
+                    var left = new BoardPosition(Position.Line, Position.Column - 1);
+                    if (Board.IsOnBoard(left) && CheckForEnemy(left) && Board.GetPiece(left) == _match.EnPassantVulnerablePiece)
+                        moves[left.Line + 1, left.Column] = true;
 
-                    Posicao direita = new Posicao(Posicao.Linha, Posicao.Coluna + 1);
-                    if (Tab.PosicaoValida(direita) && ExisteInimigo(direita) && Tab.Peca(direita) == partida.vulneravelEnPassant)
-                        mat[direita.Linha + 1, direita.Coluna] = true;
+                    var right = new BoardPosition(Position.Line, Position.Column + 1);
+                    if (Board.IsOnBoard(right) && CheckForEnemy(right) && Board.GetPiece(right) == _match.EnPassantVulnerablePiece)
+                        moves[right.Line + 1, right.Column] = true;
                 }
             }
 
-            return mat;
+            return moves;
         }
     }
 }

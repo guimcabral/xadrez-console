@@ -2,70 +2,67 @@
 
 namespace Xadrez
 {
-    class Torre : Peca
+    class Rook : Piece
     {
-        public Torre(Cor cor, Tabuleiro tab) : base(cor, tab)
+        public Rook(PieceColor color, MatchBoard board) : base(color, board) { }
+
+        public override string ToString() => "R";
+
+        private bool CanMove(BoardPosition position)
         {
+            var piece = Board.GetPiece(position);
+            return piece == null || piece.Color != Color;
         }
 
-        public override bool[,] MovimentosPossiveis()
+        public override bool[,] GetMoves()
         {
-            bool[,] mat = new bool[Tab.Linhas, Tab.Colunas];
+            var moves = new bool[Board.Lines, Board.Columns];
+            var positions = new BoardPosition(0, 0);
 
-            Posicao pos = new Posicao(0, 0);
+            if (Position is null)
+                throw new NullReferenceException();
 
-            // acima
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // up
+            positions.SetValues(Position.Line - 1, Position.Column);
+            while (Board.IsOnBoard(positions) && CanMove(positions))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[positions.Line, positions.Column] = true;
+                if (Board.GetPiece(positions) != null && Board.GetPiece(positions)?.Color != Color)
                     break;
-                pos.Linha = pos.Linha - 1;
+                positions.Line--;
             }
 
-            // abaixo
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // down
+            positions.SetValues(Position.Line + 1, Position.Column);
+            while (Board.IsOnBoard(positions) && CanMove(positions))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[positions.Line, positions.Column] = true;
+                if (Board.GetPiece(positions) != null && Board.GetPiece(positions)?.Color != Color)
                     break;
-                pos.Linha = pos.Linha + 1;
+                positions.Line++;
             }
 
-            // direita
-            pos.DefinirValores(Posicao.Linha, Posicao.Coluna + 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // right
+            positions.SetValues(Position.Line, Position.Column + 1);
+            while (Board.IsOnBoard(positions) && CanMove(positions))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[positions.Line, positions.Column] = true;
+                if (Board.GetPiece(positions) != null && Board.GetPiece(positions)?.Color != Color)
                     break;
-                pos.Coluna = pos.Coluna + 1;
+                positions.Column++;
             }
 
-            // esquerda
-            pos.DefinirValores(Posicao.Linha, Posicao.Coluna - 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // left
+            positions.SetValues(Position.Line, Position.Column - 1);
+            while (Board.IsOnBoard(positions) && CanMove(positions))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[positions.Line, positions.Column] = true;
+                if (Board.GetPiece(positions) != null && Board.GetPiece(positions)?.Color != Color)
                     break;
-                pos.Coluna = pos.Coluna - 1;
+                positions.Column--;
             }
 
-            return mat;
-        }
-
-        public override string ToString()
-        {
-            return "T";
-        }
-
-        private bool PodeMover(Posicao pos)
-        {
-            Peca p = Tab.Peca(pos);
-            return p == null || p.Cor != Cor;
+            return moves;
         }
     }
 }

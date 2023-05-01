@@ -2,61 +2,59 @@
 
 namespace Xadrez
 {
-    class Cavalo : Peca
+    class Knight : Piece
     {
-        public Cavalo(Cor cor, Tabuleiro tab) : base(cor, tab)
+        public Knight(PieceColor color, MatchBoard board) : base(color, board) { }
+
+        public override string ToString() => "N";
+
+        private bool CanMove(BoardPosition pos)
         {
+            var piece = Board.GetPiece(pos);
+            return piece is null || piece.Color != Color;
         }
 
-        public override string ToString()
+        public override bool[,] GetMoves()
         {
-            return "C";
-        }
+            var moves = new bool[Board.Lines, Board.Columns];
+            var position = new BoardPosition(0, 0);
 
-        private bool PodeMover(Posicao pos)
-        {
-            Peca p = Tab.Peca(pos);
-            return p == null || p.Cor != Cor;
-        }
+            if (Position is null)
+                throw new NullReferenceException();
 
-        public override bool[,] MovimentosPossiveis()
-        {
-            bool[,] mat = new bool[Tab.Linhas, Tab.Colunas];
-            Posicao pos = new Posicao(0, 0);
+            position.SetValues(Position.Line - 1, Position.Column - 2);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna - 2);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line - 2, Position.Column - 1);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha - 2, Posicao.Coluna - 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line - 2, Position.Column + 1);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha - 2, Posicao.Coluna + 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line - 1, Position.Column + 2);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna + 2);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line + 1, Position.Column + 2);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna + 2);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line + 2, Position.Column + 1);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha + 2, Posicao.Coluna + 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line + 2, Position.Column - 1);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha + 2, Posicao.Coluna - 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            position.SetValues(Position.Line + 1, Position.Column - 2);
+            if (Board.IsOnBoard(position) && CanMove(position))
+                moves[position.Line, position.Column] = true;
 
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna - 2);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
-
-            return mat;
+            return moves;
         }
     }
 }

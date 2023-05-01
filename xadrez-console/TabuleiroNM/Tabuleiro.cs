@@ -1,65 +1,49 @@
 ﻿namespace TabuleiroNM
 {
-    class Tabuleiro
+    class MatchBoard
     {
-        public int Linhas { get; set; }
-        public int Colunas { get; set; }
-        private Peca[,] pecas;
+        public int Lines { get; }
+        public int Columns { get; }
 
-        public Tabuleiro(int linhas, int colunas)
+        private readonly Piece?[,] _pieces;
+
+        public MatchBoard(int lines, int columns)
         {
-            Linhas = linhas;
-            Colunas = colunas;
-            pecas = new Peca[linhas, colunas];
+            Lines = lines;
+            Columns = columns;
+
+            _pieces = new Piece[lines, columns];
         }
 
-        public Peca Peca(int linha, int coluna)
+        public Piece? GetPiece(int line, int column) => _pieces[line, column];
+
+        public Piece? GetPiece(BoardPosition positions) => _pieces[positions.Line, positions.Column];
+
+        public bool IsPiece(BoardPosition position) => IsValidPiecePosition(position) && GetPiece(position) is not null;
+
+        public void PutPiece(Piece piece, BoardPosition position)
         {
-            return pecas[linha, coluna];
+            if (IsPiece(position))
+                throw new BoardException("There is already a piece in this position!");
+
+            _pieces[position.Line, position.Column] = piece;
+            piece.Position = position;
         }
 
-        public Peca Peca(Posicao pos)
+        public Piece? TakePiece(BoardPosition position)
         {
-            return pecas[pos.Linha, pos.Coluna];
-        }
-
-        public bool ExistePeca(Posicao pos)
-        {
-            ValidarPosicao(pos);
-            return Peca(pos) != null;
-        }
-
-        public void ColocarPeca(Peca p, Posicao pos)
-        {
-            if (ExistePeca(pos))
-                throw new TabuleiroException("Já existe uma peça nessa posição!");
-            pecas[pos.Linha, pos.Coluna] = p;
-            p.Posicao = pos;
-        }
-
-        public Peca RetirarPeca(Posicao pos)
-        {
-            if (Peca(pos) == null)
+            if (GetPiece(position) is null)
                 return null;
 
-            Peca aux = Peca(pos);
-            aux.Posicao = null;
-            pecas[pos.Linha, pos.Coluna] = null;
-            return aux;
+            var piece = GetPiece(position) ?? throw new NullReferenceException();
+            piece.Position = null;
+            _pieces[position.Line, position.Column] = null;
+
+            return piece;
         }
 
-        public bool PosicaoValida(Posicao pos)
-        {
-            if (pos.Linha < 0 || pos.Linha >= Linhas || pos.Coluna < 0 || pos.Coluna >= Colunas)
-                return false;
-            else
-                return true;
-        }
+        public bool IsOnBoard(BoardPosition position) => position.Line >= 0 && position.Line < Lines && position.Column >= 0 && position.Column < Columns;
 
-        public void ValidarPosicao(Posicao pos)
-        {
-            if (!PosicaoValida(pos))
-                throw new TabuleiroException("Posição inválida!");
-        }
+        public bool IsValidPiecePosition(BoardPosition position) => IsOnBoard(position) ? true : throw new BoardException("Invalid position!");
     }
 }

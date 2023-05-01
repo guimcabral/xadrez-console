@@ -6,46 +6,46 @@ namespace Xadrez_console
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             try
             {
-                PartidaDeXadrez partida = new PartidaDeXadrez();
+                var match = new ChessMatch();
 
-                while (!partida.Terminada)
+                while (!match.Finished)
                 {
                     try
                     {
                         Console.Clear();
-                        Tela.ImprimirPartida(partida);
+                        Screen.PrintMatch(match);
 
                         Console.WriteLine();
-                        Console.Write("Origem: ");
-                        Posicao origem = Tela.LerPosicaoXadrez().ToPosicao();
-                        partida.ValidarPosicaoDeOrigem(origem);
+                        Console.Write("Inital position: ");
+                        var initialPosition = Screen.ReadPosition().ToPosition();
+                        match.ValidateInitialPosition(initialPosition);
 
-                        bool[,] posicoesPossiveis = partida.Tab.Peca(origem).MovimentosPossiveis();
+                        var possiblePositions = match.Board.GetPiece(initialPosition)?.GetMoves() ?? throw new NullReferenceException();
 
                         Console.Clear();
-                        Tela.ImprimirTabuleiro(partida.Tab, posicoesPossiveis);
+                        Screen.PrintBoard(match.Board, possiblePositions);
 
                         Console.WriteLine();
-                        Console.Write("Destino: ");
-                        Posicao destino = Tela.LerPosicaoXadrez().ToPosicao();
-                        partida.ValidarPosicaoDeDestino(origem, destino);
+                        Console.Write("Final position: ");
+                        var finalPosition = Screen.ReadPosition().ToPosition();
+                        match.ValidateFinalPosition(initialPosition, finalPosition);
 
-                        partida.RealizaJogada(origem, destino);
+                        match.ExecutePlay(initialPosition, finalPosition);
                     }
-                    catch (TabuleiroException e)
+                    catch (BoardException e)
                     {
                         Console.WriteLine(e.Message);
                         Console.ReadLine();
                     }
                 }
                 Console.Clear();
-                Tela.ImprimirPartida(partida);
+                Screen.PrintMatch(match);
             }
-            catch (TabuleiroException e)
+            catch (BoardException e)
             {
                 Console.WriteLine(e.Message);
             }

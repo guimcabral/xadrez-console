@@ -3,144 +3,133 @@ using TabuleiroNM;
 
 namespace Xadrez
 {
-    class PartidaDeXadrez
+    class ChessMatch
     {
-        public Tabuleiro Tab { get; private set; }
-        public int Turno { get; private set; }
-        public Cor JogadorAtual { get; private set; }
-        public bool Terminada { get; private set; }
-        public bool Xeque { get; private set; }
-        public Peca vulneravelEnPassant { get; private set; }
+        public MatchBoard Board { get; } = new MatchBoard(8, 8);
+        public int Turn { get; private set; } = 1;
+        public PieceColor Player { get; private set; } = PieceColor.White;
+        public bool Finished { get; private set; }
+        public bool Check { get; private set; }
+        public Piece? EnPassantVulnerablePiece { get; private set; }
 
-        private HashSet<Peca> pecas;
-        private HashSet<Peca> capturadas;
+        private readonly HashSet<Piece> _pieces = new();
+        private readonly HashSet<Piece> _captured = new();
 
-        public PartidaDeXadrez()
+        public ChessMatch() => PutPieces();
+
+        private void PutPieces()
         {
-            Tab = new Tabuleiro(8, 8);
-            Turno = 1;
-            JogadorAtual = Cor.Branca;
-            Terminada = false;
-            Xeque = false;
-            pecas = new HashSet<Peca>();
-            capturadas = new HashSet<Peca>();
-            vulneravelEnPassant = null;
-            ColocarPecas();
+            PutNewPiece('a', 1, new Rook(PieceColor.White, Board));
+            PutNewPiece('b', 1, new Knight(PieceColor.White, Board));
+            PutNewPiece('c', 1, new Bishop(PieceColor.White, Board));
+            PutNewPiece('d', 1, new Queen(PieceColor.White, Board));
+            PutNewPiece('e', 1, new King(PieceColor.White, Board, this));
+            PutNewPiece('f', 1, new Bishop(PieceColor.White, Board));
+            PutNewPiece('g', 1, new Knight(PieceColor.White, Board));
+            PutNewPiece('h', 1, new Rook(PieceColor.White, Board));
+            PutNewPiece('a', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('b', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('c', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('d', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('e', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('f', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('g', 2, new Pawn(PieceColor.White, Board, this));
+            PutNewPiece('h', 2, new Pawn(PieceColor.White, Board, this));
+
+            PutNewPiece('a', 8, new Rook(PieceColor.Black, Board));
+            PutNewPiece('b', 8, new Knight(PieceColor.Black, Board));
+            PutNewPiece('c', 8, new Bishop(PieceColor.Black, Board));
+            PutNewPiece('d', 8, new Queen(PieceColor.Black, Board));
+            PutNewPiece('e', 8, new King(PieceColor.Black, Board, this));
+            PutNewPiece('f', 8, new Bishop(PieceColor.Black, Board));
+            PutNewPiece('g', 8, new Knight(PieceColor.Black, Board));
+            PutNewPiece('h', 8, new Rook(PieceColor.Black, Board));
+            PutNewPiece('a', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('b', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('c', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('d', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('e', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('f', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('g', 7, new Pawn(PieceColor.Black, Board, this));
+            PutNewPiece('h', 7, new Pawn(PieceColor.Black, Board, this));
         }
 
-        private void ColocarPecas()
+        public HashSet<Piece> CapturedPieces(PieceColor color)
         {
-            ColocarNovaPeca('a', 1, new Torre(Cor.Branca, Tab));
-            ColocarNovaPeca('b', 1, new Cavalo(Cor.Branca, Tab));
-            ColocarNovaPeca('c', 1, new Bispo(Cor.Branca, Tab));
-            ColocarNovaPeca('d', 1, new Dama(Cor.Branca, Tab));
-            ColocarNovaPeca('e', 1, new Rei(Cor.Branca, Tab, this));
-            ColocarNovaPeca('f', 1, new Bispo(Cor.Branca, Tab));
-            ColocarNovaPeca('g', 1, new Cavalo(Cor.Branca, Tab));
-            ColocarNovaPeca('h', 1, new Torre(Cor.Branca, Tab));
-            ColocarNovaPeca('a', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('b', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('c', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('d', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('e', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('f', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('g', 2, new Peao(Cor.Branca, Tab, this));
-            ColocarNovaPeca('h', 2, new Peao(Cor.Branca, Tab, this));
-
-            ColocarNovaPeca('a', 8, new Torre(Cor.Preta, Tab));
-            ColocarNovaPeca('b', 8, new Cavalo(Cor.Preta, Tab));
-            ColocarNovaPeca('c', 8, new Bispo(Cor.Preta, Tab));
-            ColocarNovaPeca('d', 8, new Dama(Cor.Preta, Tab));
-            ColocarNovaPeca('e', 8, new Rei(Cor.Preta, Tab, this));
-            ColocarNovaPeca('f', 8, new Bispo(Cor.Preta, Tab));
-            ColocarNovaPeca('g', 8, new Cavalo(Cor.Preta, Tab));
-            ColocarNovaPeca('h', 8, new Torre(Cor.Preta, Tab));
-            ColocarNovaPeca('a', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('b', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('c', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('d', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('e', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('f', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('g', 7, new Peao(Cor.Preta, Tab, this));
-            ColocarNovaPeca('h', 7, new Peao(Cor.Preta, Tab, this));
-        }
-
-        public HashSet<Peca> PecasCapturadas(Cor cor)
-        {
-            HashSet<Peca> aux = new HashSet<Peca>();
-            foreach (Peca x in capturadas)
+            var aux = new HashSet<Piece>();
+            foreach (Piece piece in _captured)
             {
-                if (x.Cor == cor)
-                    aux.Add(x);
+                if (piece.Color == color)
+                    aux.Add(piece);
             }
             return aux;
         }
 
-        public HashSet<Peca> PecasEmJogo(Cor cor)
+        public HashSet<Piece> PiecesOnBoard(PieceColor color)
         {
-            HashSet<Peca> aux = new HashSet<Peca>();
-            foreach (Peca x in pecas)
+            var aux = new HashSet<Piece>();
+            foreach (Piece piece in _pieces)
             {
-                if (x.Cor == cor)
-                    aux.Add(x);
+                if (piece.Color == color)
+                    aux.Add(piece);
             }
-            aux.ExceptWith(PecasCapturadas(cor));
+            aux.ExceptWith(CapturedPieces(color));
             return aux;
         }
 
-        private Cor Adversaria(Cor cor)
+        private static PieceColor Opponent(PieceColor color)
         {
-            if (cor == Cor.Branca)
-                return Cor.Preta;
+            if (color == PieceColor.White)
+                return PieceColor.Black;
             else
-                return Cor.Branca;
+                return PieceColor.White;
         }
 
-        private Peca Rei(Cor cor)
+        private Piece? King(PieceColor color)
         {
-            foreach (Peca x in PecasEmJogo(cor))
+            foreach (Piece piece in PiecesOnBoard(color))
             {
-                if (x is Rei)
-                    return x;
+                if (piece is King)
+                    return piece;
             }
             return null;
         }
 
-        public bool EstaEmXeque(Cor cor)
+        public bool IsInCheck(PieceColor color)
         {
-            Peca R = Rei(cor);
-            if (R == null)
-                throw new TabuleiroException("Não tem rei da cor " + cor + " no tabuleiro!");
+            var piece = King(color) ?? throw new BoardException("There is no king of " + color + "color on the board!");
 
-            foreach (Peca x in PecasEmJogo(Adversaria(cor)))
+            foreach (Piece x in PiecesOnBoard(Opponent(color)))
             {
-                bool[,] mat = x.MovimentosPossiveis();
-                if (mat[R.Posicao.Linha, R.Posicao.Coluna])
+                var moves = x.GetMoves();
+                if (moves[piece.Position.Line, piece.Position.Column])
                     return true;
             }
             return false;
         }
 
-        public bool TesteXequeMate(Cor cor)
+        public bool CheckmateTest(PieceColor color)
         {
-            if (!EstaEmXeque(cor))
+            if (!IsInCheck(color))
                 return false;
 
-            foreach (Peca x in PecasEmJogo(cor))
+            foreach (Piece piece in PiecesOnBoard(color))
             {
-                bool[,] mat = x.MovimentosPossiveis();
-                for (int i = 0; i < Tab.Linhas; i++)
+                var moves = piece.GetMoves();
+                for (int i = 0; i < Board.Lines; i++)
                 {
-                    for (int j = 0; j < Tab.Colunas; j++)
+                    for (int j = 0; j < Board.Columns; j++)
                     {
-                        if (mat[i, j])
+                        if (moves[i, j])
                         {
-                            Posicao origem = x.Posicao;
-                            Posicao destino = new Posicao(i, j);
-                            Peca pecaCapturada = ExecutaMovimento(origem, destino);
-                            bool testeXeque = EstaEmXeque(cor);
-                            DesfazMovimento(origem, destino, pecaCapturada);
-                            if (!testeXeque)
+                            var initialPosition = piece.Position;
+                            var finalPosition = new BoardPosition(i, j);
+                            var capturedPiece = ExecuteMove(initialPosition, finalPosition);
+                            var isInCheck = IsInCheck(color);
+
+                            UndoMove(initialPosition, finalPosition, capturedPiece);
+
+                            if (!isInCheck)
                                 return false;
                         }
                     }
@@ -149,175 +138,178 @@ namespace Xadrez
             return true;
         }
 
-        public void ColocarNovaPeca(char coluna, int linha, Peca peca)
+        public void PutNewPiece(char column, int linha, Piece piece)
         {
-            Tab.ColocarPeca(peca, new PosicaoXadrez(coluna, linha).ToPosicao());
-            pecas.Add(peca);
+            Board.PutPiece(piece, new PosicaoXadrez(column, linha).ToPosition());
+            _pieces.Add(piece);
         }
 
-        public Peca ExecutaMovimento(Posicao origem, Posicao destino)
+        public Piece ExecuteMove(BoardPosition initialPosition, BoardPosition finalPosition)
         {
-            Peca p = Tab.RetirarPeca(origem);
-            p.IncrementarQteMovimentos();
-            Peca pecaCapturada = Tab.RetirarPeca(destino);
-            Tab.ColocarPeca(p, destino);
+            var piece = Board.TakePiece(initialPosition);
+            piece?.IncrementNumberOfMoves();
 
-            if (pecaCapturada != null)
-                capturadas.Add(pecaCapturada);
+            var capturedPiece = Board.TakePiece(finalPosition);
+            Board.PutPiece(piece, finalPosition);
+
+            if (capturedPiece != null)
+                _captured.Add(capturedPiece);
 
             // #jogaespecial roque pequeno
-            if (p is Rei && destino.Coluna == origem.Coluna + 2)
+            if (piece is King && finalPosition.Column == initialPosition.Column + 2)
             {
-                Posicao origemT = new Posicao(origem.Linha, origem.Coluna + 3);
-                Posicao destinoT = new Posicao(origem.Linha, origem.Coluna + 1);
-                Peca T = Tab.RetirarPeca(origemT);
-                T.IncrementarQteMovimentos();
-                Tab.ColocarPeca(T, destinoT);
+                var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column + 3);
+                var destinoT = new BoardPosition(initialPosition.Line, initialPosition.Column + 1);
+                var T = Board.TakePiece(origemT);
+                T.IncrementNumberOfMoves();
+                Board.PutPiece(T, destinoT);
             }
 
             // #jogaespecial roque grande
-            if (p is Rei && destino.Coluna == origem.Coluna - 2)
+            if (piece is King && finalPosition.Column == initialPosition.Column - 2)
             {
-                Posicao origemT = new Posicao(origem.Linha, origem.Coluna - 4);
-                Posicao destinoT = new Posicao(origem.Linha, origem.Coluna - 1);
-                Peca T = Tab.RetirarPeca(origemT);
-                T.IncrementarQteMovimentos();
-                Tab.ColocarPeca(T, destinoT);
+                var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column - 4);
+                var destinoT = new BoardPosition(initialPosition.Line, initialPosition.Column - 1);
+                var T = Board.TakePiece(origemT);
+                T.IncrementNumberOfMoves();
+                Board.PutPiece(T, destinoT);
             }
 
             // #jogadaespecial en passant
-            if (p is Peao){
-                if (origem.Coluna != destino.Coluna && pecaCapturada == null)
+            if (piece is Pawn){
+                if (initialPosition.Column != finalPosition.Column && capturedPiece is null)
                 {
-                    Posicao posP;
-                    if (p.Cor == Cor.Branca)
-                        posP = new Posicao(destino.Linha + 1, destino.Coluna);
+                    BoardPosition posP;
+                    if (piece.Color == PieceColor.White)
+                        posP = new BoardPosition(finalPosition.Line + 1, finalPosition.Column);
                     else
-                        posP = new Posicao(destino.Linha - 1, destino.Coluna);
+                        posP = new BoardPosition(finalPosition.Line - 1, finalPosition.Column);
 
-                    pecaCapturada = Tab.RetirarPeca(posP);
-                    capturadas.Add(pecaCapturada);
+                    capturedPiece = Board.TakePiece(posP);
+                    _captured.Add(capturedPiece);
                 }
             }
 
-            return pecaCapturada;
+            return capturedPiece;
         }
 
-        public void DesfazMovimento(Posicao origem, Posicao destino, Peca pecaCapturada)
+        public void UndoMove(BoardPosition initialPosition, BoardPosition finalPosition, Piece capturedPiece)
         {
-            Peca p = Tab.RetirarPeca(destino);
-            p.DecrementarQteMovimentos();
-            if (pecaCapturada != null)
+            Piece piece = Board.TakePiece(finalPosition);
+            piece.DecrementNumberOfMoves();
+
+            if (capturedPiece != null)
             {
-                Tab.ColocarPeca(pecaCapturada, destino);
-                capturadas.Remove(pecaCapturada);
+                Board.PutPiece(capturedPiece, finalPosition);
+                _captured.Remove(capturedPiece);
             }
-            Tab.ColocarPeca(p, origem);
+            Board.PutPiece(piece, initialPosition);
 
             // #jogaespecial roque pequeno
-            if (p is Rei && destino.Coluna == origem.Coluna + 2)
+            if (piece is King && finalPosition.Column == initialPosition.Column + 2)
             {
-                Posicao origemT = new Posicao(origem.Linha, origem.Coluna + 3);
-                Posicao destinoT = new Posicao(origem.Linha, origem.Coluna + 1);
-                Peca T = Tab.RetirarPeca(destinoT);
-                T.DecrementarQteMovimentos();
-                Tab.ColocarPeca(T, origemT);
+                var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column + 3);
+                var destinoT = new BoardPosition(initialPosition.Line, initialPosition.Column + 1);
+                var T = Board.TakePiece(destinoT);
+                T.DecrementNumberOfMoves();
+                Board.PutPiece(T, origemT);
             }
 
             // #jogaespecial roque grande
-            if (p is Rei && destino.Coluna == origem.Coluna - 2)
+            if (piece is King && finalPosition.Column == initialPosition.Column - 2)
             {
-                Posicao origemT = new Posicao(origem.Linha, origem.Coluna - 4);
-                Posicao destinoT = new Posicao(origem.Linha, origem.Coluna - 1);
-                Peca T = Tab.RetirarPeca(destinoT);
-                T.IncrementarQteMovimentos();
-                Tab.ColocarPeca(T, origemT);
+                var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column - 4);
+                var destinoT = new BoardPosition(initialPosition.Line, initialPosition.Column - 1);
+                var T = Board.TakePiece(destinoT);
+                T.IncrementNumberOfMoves();
+                Board.PutPiece(T, origemT);
             }
 
             // #jogadaespecial en passant
-            if (p is Peao)
+            if (piece is Pawn)
             {
-                if (origem.Coluna != destino.Coluna && pecaCapturada == vulneravelEnPassant)
+                if (initialPosition.Column != finalPosition.Column && capturedPiece == EnPassantVulnerablePiece)
                 {
-                    Peca peao = Tab.RetirarPeca(destino);
-                    Posicao posP;
-                    if (p.Cor == Cor.Branca)
-                        posP = new Posicao(3, destino.Coluna);
+                    var pawn = Board.TakePiece(finalPosition);
+                    BoardPosition posP;
+                    if (piece.Color == PieceColor.White)
+                        posP = new BoardPosition(3, finalPosition.Column);
                     else
-                        posP = new Posicao(4, destino.Coluna);
+                        posP = new BoardPosition(4, finalPosition.Column);
 
-                    Tab.ColocarPeca(peao, posP);
+                    Board.PutPiece(pawn, posP);
                 }
             }
         }
 
-        public void RealizaJogada(Posicao origem, Posicao destino)
+        public void ExecutePlay(BoardPosition initialPosition, BoardPosition finalPosition)
         {
-            Peca pecaCapturada = ExecutaMovimento(origem, destino);
+            var capturedPiece = ExecuteMove(initialPosition, finalPosition);
 
-            if (EstaEmXeque(JogadorAtual))
+            if (IsInCheck(Player))
             {
-                DesfazMovimento(origem, destino, pecaCapturada);
-                throw new TabuleiroException("Você não pode se colocar em xeque!");
+                UndoMove(initialPosition, finalPosition, capturedPiece);
+                throw new BoardException("You can't put yourself in check!");
             }
 
-            Peca p = Tab.Peca(destino);
+            var piece = Board.GetPiece(finalPosition);
 
             // #jogadaespecial promoção
-            if (p is Peao)
+            if (piece is Pawn)
             {
-                if ((p.Cor == Cor.Branca && destino.Linha == 0) || (p.Cor == Cor.Preta && destino.Linha == 7))
+                if ((piece.Color == PieceColor.White && finalPosition.Line == 0) || (piece.Color == PieceColor.Black && finalPosition.Line == 7))
                 {
-                    p = Tab.RetirarPeca(destino);
-                    pecas.Remove(p);
-                    Peca dama = new Dama(p.Cor, p.Tab);
-                    Tab.ColocarPeca(dama, destino);
-                    pecas.Add(dama);
+                    piece = Board.TakePiece(finalPosition);
+                    _pieces.Remove(piece);
+
+                    var queen = new Queen(piece.Color, piece.Board);
+                    Board.PutPiece(queen, finalPosition);
+                    _pieces.Add(queen);
                 }
             }
 
-            if (EstaEmXeque(Adversaria(JogadorAtual)))
-                Xeque = true;
+            if (IsInCheck(Opponent(Player)))
+                Check = true;
             else
-                Xeque = false;
+                Check = false;
 
-            if (TesteXequeMate(Adversaria(JogadorAtual)))
-                Terminada = true;
+            if (CheckmateTest(Opponent(Player)))
+                Finished = true;
             else
             {
-                Turno++;
-                MudaJogador();
+                Turn++;
+                ChangePlayer();
             }
 
             // #jogadaespecial en passant
-            if (p is Peao && (destino.Linha == origem.Linha - 2 || destino.Linha == origem.Linha + 2))
-                vulneravelEnPassant = p;
+            if (piece is Pawn && (finalPosition.Line == initialPosition.Line - 2 || finalPosition.Line == initialPosition.Line + 2))
+                EnPassantVulnerablePiece = piece;
             else
-                vulneravelEnPassant = null;
+                EnPassantVulnerablePiece = null;
         }
 
-        public void ValidarPosicaoDeOrigem(Posicao pos)
+        public void ValidateInitialPosition(BoardPosition pos)
         {
-            if (Tab.Peca(pos) == null)
-                throw new TabuleiroException("Não existe peça na posição de origem escolhida!");
-            if (JogadorAtual != Tab.Peca(pos).Cor)
-                throw new TabuleiroException("A peça de origem escolhida não é sua!");
-            if (!Tab.Peca(pos).ExisteMovimentosPossiveis())
-                throw new TabuleiroException("Não há movimentos possíveis para a peça de origem escolhida!");
+            if (Board.GetPiece(pos) is null)
+                throw new BoardException("There is no piece in the chosen position!");
+            if (Player != Board.GetPiece(pos).Color)
+                throw new BoardException("The chosen piece is not yours!");
+            if (!Board.GetPiece(pos).CheckForMoves())
+                throw new BoardException("There are no possible moves for the chosen piece!");
         }
 
-        public void ValidarPosicaoDeDestino(Posicao origem, Posicao destino)
+        public void ValidateFinalPosition(BoardPosition origem, BoardPosition destino)
         {
-            if (!Tab.Peca(origem).MovimentoPossivel(destino))
-                throw new TabuleiroException("Posição de destino inválida!");
+            if (!Board.GetPiece(origem).IsPossibleMove(destino))
+                throw new BoardException("Invalid final position!");
         }
 
-        private void MudaJogador()
+        private void ChangePlayer()
         {
-            if (JogadorAtual == Cor.Branca)
-                JogadorAtual = Cor.Preta;
+            if (Player == PieceColor.White)
+                Player = PieceColor.Black;
             else
-                JogadorAtual = Cor.Branca;
+                Player = PieceColor.White;
         }
     }
 }

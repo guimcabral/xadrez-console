@@ -2,104 +2,100 @@
 
 namespace Xadrez
 {
-    class Rei : Peca
+    class King : Piece
     {
-        private PartidaDeXadrez partida;
+        private readonly ChessMatch _match;
 
-        public Rei(Cor cor, Tabuleiro tab, PartidaDeXadrez partida) : base(cor, tab)
+        public King(PieceColor color, MatchBoard board, ChessMatch match) : base(color, board) => _match = match;
+
+        public override string ToString() => "K";
+
+        private bool CanMove(BoardPosition position)
         {
-            this.partida = partida;
+            var piece = Board.GetPiece(position);
+            return piece is null || piece.Color != Color;
         }
 
-        public override string ToString()
+        private bool RookCastlingTest(BoardPosition position)
         {
-            return "R";
+            var piece = Board.GetPiece(position);
+            return piece is not null && piece is Rook && piece.Color == Color && piece.NumbersOfMoves == 0;
         }
 
-        private bool PodeMover(Posicao pos)
+        public override bool[,] GetMoves()
         {
-            Peca p = Tab.Peca(pos);
-            return p == null || p.Cor != Cor;
-        }
+            var moves = new bool[Board.Lines, Board.Columns];
+            var positions = new BoardPosition(0, 0);
 
-        private bool TesteTorreParaRoque(Posicao pos)
-        {
-            Peca p = Tab.Peca(pos);
-            return p != null && p is Torre && p.Cor == Cor && p.QteMovimentos == 0;
-        }
+            if (Position is null)
+                throw new NullReferenceException();
 
-        public override bool[,] MovimentosPossiveis()
-        {
-            bool[,] mat = new bool[Tab.Linhas, Tab.Colunas];
+            // north
+            positions.SetValues(Position.Line - 1, Position.Column);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            Posicao pos = new Posicao(0, 0);
+            // northeast
+            positions.SetValues(Position.Line - 1, Position.Column + 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // norte
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // east
+            positions.SetValues(Position.Line, Position.Column + 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // nordeste
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna + 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // southeast
+            positions.SetValues(Position.Line + 1, Position.Column + 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // leste
-            pos.DefinirValores(Posicao.Linha, Posicao.Coluna + 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // south
+            positions.SetValues(Position.Line + 1, Position.Column);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // sudeste
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna + 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // southwest
+            positions.SetValues(Position.Line + 1, Position.Column - 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // sul
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // west
+            positions.SetValues(Position.Line, Position.Column - 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
-            // sudoeste
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna - 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
-
-            // oeste
-            pos.DefinirValores(Posicao.Linha, Posicao.Coluna - 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
-
-            // noroeste
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna - 1);
-            if (Tab.PosicaoValida(pos) && PodeMover(pos))
-                mat[pos.Linha, pos.Coluna] = true;
+            // northwest
+            positions.SetValues(Position.Line - 1, Position.Column - 1);
+            if (Board.IsOnBoard(positions) && CanMove(positions))
+                moves[positions.Line, positions.Column] = true;
 
             // #jogaespecial roque
-            if (QteMovimentos == 0 && !partida.Xeque)
+            if (NumbersOfMoves == 0 && !_match.Check)
             {
                 // #jogadaespecial roque pequeno
-                Posicao posT1 = new Posicao(Posicao.Linha, Posicao.Coluna + 3);
-                if (TesteTorreParaRoque(posT1))
+                var posT1 = new BoardPosition(Position.Line, Position.Column + 3);
+                if (RookCastlingTest(posT1))
                 {
-                    Posicao p1 = new Posicao(Posicao.Linha, Posicao.Coluna + 1);
-                    Posicao p2 = new Posicao(Posicao.Linha, Posicao.Coluna + 2);
-                    if (Tab.Peca(p1) == null && Tab.Peca(p2) == null)
-                        mat[Posicao.Linha, Posicao.Coluna + 2] = true;
+                    var p1 = new BoardPosition(Position.Line, Position.Column + 1);
+                    var p2 = new BoardPosition(Position.Line, Position.Column + 2);
+                    if (Board.GetPiece(p1) == null && Board.GetPiece(p2) == null)
+                        moves[Position.Line, Position.Column + 2] = true;
                 }
 
                 // #jogadaespecial roque grande
-                Posicao posT2 = new Posicao(Posicao.Linha, Posicao.Coluna - 4);
-                if (TesteTorreParaRoque(posT2))
+                var posT2 = new BoardPosition(Position.Line, Position.Column - 4);
+                if (RookCastlingTest(posT2))
                 {
-                    Posicao p1 = new Posicao(Posicao.Linha, Posicao.Coluna - 1);
-                    Posicao p2 = new Posicao(Posicao.Linha, Posicao.Coluna - 2);
-                    Posicao p3 = new Posicao(Posicao.Linha, Posicao.Coluna - 3);
-                    if (Tab.Peca(p1) == null && Tab.Peca(p2) == null && Tab.Peca(p3) == null)
-                        mat[Posicao.Linha, Posicao.Coluna - 2] = true;
+                    var p1 = new BoardPosition(Position.Line, Position.Column - 1);
+                    var p2 = new BoardPosition(Position.Line, Position.Column - 2);
+                    var p3 = new BoardPosition(Position.Line, Position.Column - 3);
+                    if (Board.GetPiece(p1) == null && Board.GetPiece(p2) == null && Board.GetPiece(p3) == null)
+                        moves[Position.Line, Position.Column - 2] = true;
                 }
             }
 
-            return mat;
+            return moves;
         }
     }
 }

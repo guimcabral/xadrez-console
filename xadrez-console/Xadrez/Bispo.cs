@@ -2,69 +2,67 @@
 
 namespace Xadrez
 {
-    class Bispo : Peca
+    class Bishop : Piece
     {
-        public Bispo(Cor cor, Tabuleiro tab) : base(cor, tab)
+        public Bishop(PieceColor color, MatchBoard board) : base(color, board) { }
+
+        public override string ToString() => "B";
+
+        public bool CanMove(BoardPosition position)
         {
+            var piece = Board.GetPiece(position);
+            return piece is null || piece.Color != Color;
         }
 
-        public override string ToString()
+        public override bool[,] GetMoves()
         {
-            return "B";
-        }
+            var moves = new bool[Board.Lines, Board.Columns];
+            var position = new BoardPosition(0, 0);
 
-        public bool PodeMover(Posicao pos)
-        {
-            Peca p = Tab.Peca(pos);
-            return p == null || p.Cor != Cor;
-        }
+            if (Position is null)
+                throw new NullReferenceException();
 
-        public override bool[,] MovimentosPossiveis()
-        {
-            bool[,] mat = new bool[Tab.Linhas, Tab.Colunas];
-            Posicao pos = new Posicao(0, 0);
-
-            //NO
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna - 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // northwest
+            position.SetValues(Position.Line - 1, Position.Column - 1);
+            while (Board.IsOnBoard(position) && CanMove(position))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[position.Line, position.Column] = true;
+                if (Board.GetPiece(position) != null && Board.GetPiece(position)?.Color != Color)
                     break;
-                pos.DefinirValores(pos.Linha - 1, pos.Coluna - 1);
+                position.SetValues(position.Line - 1, position.Column - 1);
             }
 
-            //NE
-            pos.DefinirValores(Posicao.Linha - 1, Posicao.Coluna + 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // northeast
+            position.SetValues(Position.Line - 1, Position.Column + 1);
+            while (Board.IsOnBoard(position) && CanMove(position))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[position.Line, position.Column] = true;
+                if (Board.GetPiece(position) != null && Board.GetPiece(position)?.Color != Color)
                     break;
-                pos.DefinirValores(pos.Linha - 1, pos.Coluna + 1);
+                position.SetValues(position.Line - 1, position.Column + 1);
             }
 
-            //SE
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna + 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // southeast
+            position.SetValues(Position.Line + 1, Position.Column + 1);
+            while (Board.IsOnBoard(position) && CanMove(position))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[position.Line, position.Column] = true;
+                if (Board.GetPiece(position) != null && Board.GetPiece(position)?.Color != Color)
                     break;
-                pos.DefinirValores(pos.Linha + 1, pos.Coluna + 1);
+                position.SetValues(position.Line + 1, position.Column + 1);
             }
 
-            //SO
-            pos.DefinirValores(Posicao.Linha + 1, Posicao.Coluna - 1);
-            while (Tab.PosicaoValida(pos) && PodeMover(pos))
+            // southwest
+            position.SetValues(Position.Line + 1, Position.Column - 1);
+            while (Board.IsOnBoard(position) && CanMove(position))
             {
-                mat[pos.Linha, pos.Coluna] = true;
-                if (Tab.Peca(pos) != null && Tab.Peca(pos).Cor != Cor)
+                moves[position.Line, position.Column] = true;
+                if (Board.GetPiece(position) != null && Board.GetPiece(position)?.Color != Color)
                     break;
-                pos.DefinirValores(pos.Linha + 1, pos.Coluna - 1);
+                position.SetValues(position.Line + 1, position.Column - 1);
             }
 
-            return mat;
+            return moves;
         }
     }
 }

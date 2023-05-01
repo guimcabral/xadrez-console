@@ -1,49 +1,39 @@
 ﻿namespace TabuleiroNM
 {
-    abstract class Peca
+    abstract class Piece
     {
-        public Posicao Posicao { get; set; }
-        public Cor Cor { get; protected set; }
-        public int QteMovimentos { get; protected set; }
-        public Tabuleiro Tab { get; protected set; }
+        public BoardPosition? Position { get; set; }
+        public PieceColor Color { get; protected set; }
+        public int NumbersOfMoves { get; protected set; }
+        public MatchBoard Board { get; protected set; }
 
-        public Peca(Cor cor, Tabuleiro tab)
+        public Piece(PieceColor color, MatchBoard board)
         {
-            Posicao = null;
-            Cor = cor;
-            QteMovimentos = 0;
-            Tab = tab;
+            Color = color;
+            NumbersOfMoves = 0;
+            Board = board;
         }
 
-        public void IncrementarQteMovimentos()
-        {
-            QteMovimentos++;
-        }
+        public void IncrementNumberOfMoves() => NumbersOfMoves++;
 
-        public void DecrementarQteMovimentos()
-        {
-            QteMovimentos--;
-        }
+        public void DecrementNumberOfMoves() => NumbersOfMoves--;
 
-        public bool ExisteMovimentosPossiveis()
+        public bool CheckForMoves()
         {
-            bool[,] mat = MovimentosPossiveis();
-            for (int i = 0; i < Tab.Linhas; i++)
+            var moves = GetMoves();
+            for (int i = 0; i < Board.Lines; i++)
             {
-                for (int j = 0; j < Tab.Colunas; j++)
+                for (int j = 0; j < Board.Columns; j++)
                 {
-                    if (mat[i,j])
+                    if (moves[i,j])
                         return true;
                 }
             }
             return false;
         }
 
-        public bool MovimentoPossivel(Posicao pos)
-        {
-            return MovimentosPossiveis()[pos.Linha, pos.Coluna];
-        }
+        public bool IsPossibleMove(BoardPosition positions) => GetMoves()[positions.Line, positions.Column];
 
-        public abstract bool[,] MovimentosPossiveis();
+        public abstract bool[,] GetMoves();
     }
 }

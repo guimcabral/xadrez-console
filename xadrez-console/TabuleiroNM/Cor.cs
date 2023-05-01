@@ -1,13 +1,8 @@
 ﻿namespace TabuleiroNM
 {
-    enum Cor
+    enum PieceColor
     {
-        Branca,
-        Preta,
-        Amarela,
-        Azul,
-        Vermelha,
-        Verde,
-        Laranja
+        White,
+        Black
     }
 }

@@ -1,27 +1,22 @@
 ﻿namespace TabuleiroNM
 {
-    class Posicao
+    class BoardPosition
     {
-        public int Linha { get; set; }
-        public int Coluna { get; set; }
+        public int Line { get; set; }
+        public int Column { get; set; }
         
-        public Posicao(int linha, int coluna)
+        public BoardPosition(int line, int column)
         {
-            Linha = linha;
-            Coluna = coluna;
+            Line = line;
+            Column = column;
         }
 
-        public void DefinirValores(int linha, int coluna)
+        public void SetValues(int line, int column)
         {
-            Linha = linha;
-            Coluna = coluna;
+            Line = line;
+            Column = column;
         }
 
-        public override string ToString()
-        {
-            return Linha
-                + ", "
-                + Coluna;
-        }
+        public override string ToString() => $"{Line}, {Column}";
     }
 }
