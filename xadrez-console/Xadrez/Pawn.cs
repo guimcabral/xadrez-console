@@ -44,7 +44,7 @@ namespace Xadrez
                 if (Board.IsOnBoard(position) && CheckForEnemy(position))
                     moves[position.Line, position.Column] = true;
 
-                // #jogadaespecial en passant
+                // en passant
                 if (Position.Line == 3)
                 {
                     var left = new BoardPosition(Position.Line, Position.Column - 1);
@@ -74,7 +74,7 @@ namespace Xadrez
                 if (Board.IsOnBoard(position) && CheckForEnemy(position))
                     moves[position.Line, position.Column] = true;
 
-                // #jogadaespecial en passant
+                // en passant
                 if (Position.Line == 4)
                 {
                     var left = new BoardPosition(Position.Line, Position.Column - 1);

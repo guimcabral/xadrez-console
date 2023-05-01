@@ -2,12 +2,12 @@
 
 namespace Xadrez
 {
-    class PosicaoXadrez
+    class ChessPosition
     {
         public char Column { get; set; }
         public int Line { get; set; }
 
-        public PosicaoXadrez(char column, int line)
+        public ChessPosition(char column, int line)
         {
             Column = column;
             Line = line;

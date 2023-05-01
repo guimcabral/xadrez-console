@@ -140,7 +140,7 @@ namespace Xadrez
 
         public void PutNewPiece(char column, int linha, Piece piece)
         {
-            Board.PutPiece(piece, new PosicaoXadrez(column, linha).ToPosition());
+            Board.PutPiece(piece, new ChessPosition(column, linha).ToPosition());
             _pieces.Add(piece);
         }
 
@@ -155,7 +155,7 @@ namespace Xadrez
             if (capturedPiece != null)
                 _captured.Add(capturedPiece);
 
-            // #jogaespecial roque pequeno
+            // kingside castling
             if (piece is King && finalPosition.Column == initialPosition.Column + 2)
             {
                 var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column + 3);
@@ -165,7 +165,7 @@ namespace Xadrez
                 Board.PutPiece(T, destinoT);
             }
 
-            // #jogaespecial roque grande
+            // queenside castling
             if (piece is King && finalPosition.Column == initialPosition.Column - 2)
             {
                 var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column - 4);
@@ -175,7 +175,7 @@ namespace Xadrez
                 Board.PutPiece(T, destinoT);
             }
 
-            // #jogadaespecial en passant
+            // en passant
             if (piece is Pawn){
                 if (initialPosition.Column != finalPosition.Column && capturedPiece is null)
                 {
@@ -205,7 +205,7 @@ namespace Xadrez
             }
             Board.PutPiece(piece, initialPosition);
 
-            // #jogaespecial roque pequeno
+            // kingside castling
             if (piece is King && finalPosition.Column == initialPosition.Column + 2)
             {
                 var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column + 3);
@@ -215,7 +215,7 @@ namespace Xadrez
                 Board.PutPiece(T, origemT);
             }
 
-            // #jogaespecial roque grande
+            // queenside castling
             if (piece is King && finalPosition.Column == initialPosition.Column - 2)
             {
                 var origemT = new BoardPosition(initialPosition.Line, initialPosition.Column - 4);
@@ -225,7 +225,7 @@ namespace Xadrez
                 Board.PutPiece(T, origemT);
             }
 
-            // #jogadaespecial en passant
+            // en passant
             if (piece is Pawn)
             {
                 if (initialPosition.Column != finalPosition.Column && capturedPiece == EnPassantVulnerablePiece)
@@ -254,7 +254,7 @@ namespace Xadrez
 
             var piece = Board.GetPiece(finalPosition);
 
-            // #jogadaespecial promoção
+            // ´pawn promotion
             if (piece is Pawn)
             {
                 if ((piece.Color == PieceColor.White && finalPosition.Line == 0) || (piece.Color == PieceColor.Black && finalPosition.Line == 7))
@@ -281,7 +281,7 @@ namespace Xadrez
                 ChangePlayer();
             }
 
-            // #jogadaespecial en passant
+            // en passant
             if (piece is Pawn && (finalPosition.Line == initialPosition.Line - 2 || finalPosition.Line == initialPosition.Line + 2))
                 EnPassantVulnerablePiece = piece;
             else

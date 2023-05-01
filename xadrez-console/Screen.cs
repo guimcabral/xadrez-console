@@ -89,13 +89,13 @@ namespace Xadrez_console
             Console.BackgroundColor = fundoOriginal;
         }
 
-        public static PosicaoXadrez ReadPosition()
+        public static ChessPosition ReadPosition()
         {
             var input = Console.ReadLine();
             var column = input[0];
             var line = int.Parse(input[1] + "");
 
-            return new PosicaoXadrez(column, line);
+            return new ChessPosition(column, line);
         }
 
         public static void PrintPiece(Piece piece)

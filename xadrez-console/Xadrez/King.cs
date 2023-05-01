@@ -70,10 +70,10 @@ namespace Xadrez
             if (Board.IsOnBoard(positions) && CanMove(positions))
                 moves[positions.Line, positions.Column] = true;
 
-            // #jogaespecial roque
+            // castling
             if (NumbersOfMoves == 0 && !_match.Check)
             {
-                // #jogadaespecial roque pequeno
+                // kingside castling
                 var posT1 = new BoardPosition(Position.Line, Position.Column + 3);
                 if (RookCastlingTest(posT1))
                 {
@@ -83,7 +83,7 @@ namespace Xadrez
                         moves[Position.Line, Position.Column + 2] = true;
                 }
 
-                // #jogadaespecial roque grande
+                // queenside castling
                 var posT2 = new BoardPosition(Position.Line, Position.Column - 4);
                 if (RookCastlingTest(posT2))
                 {
